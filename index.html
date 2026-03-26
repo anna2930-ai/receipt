@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>安安媽 · 數位電子收據</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans TC',sans-serif;background:#f5ede3;min-height:100vh;padding:24px 16px;}
+.page{max-width:480px;margin:0 auto;}
+.receipt{background:#fff;border:1.5px solid #e8d8c8;border-radius:16px;overflow:hidden;}
+.rh{background:#f2e0cc;padding:18px 24px;text-align:center;}
+.rh-title{font-size:22px;font-weight:700;color:#3d2b1a;letter-spacing:6px;}
+.rh-sub{font-size:12px;color:#a07858;margin-top:4px;}
+.rb{padding:20px 22px;}
+.field-row{display:flex;align-items:center;padding:8px 0;border-bottom:1px dashed #f0e0cc;gap:8px;}
+.field-row:last-child{border-bottom:none;}
+.field-label{font-size:12px;color:#a07858;white-space:nowrap;min-width:76px;}
+.field-input{flex:1;border:none;border-bottom:1.5px solid #e8d4c0;background:transparent;font-size:13px;color:#3d2b1a;font-family:'Noto Sans TC',sans-serif;padding:2px 4px;outline:none;}
+.field-input:focus{border-bottom-color:#c08050;}
+.field-input::placeholder{color:#d0b89a;font-size:12px;}
+select.field-input{cursor:pointer;}
+.divider{border:none;border-top:1.5px solid #f0e0cc;margin:14px 0;}
+.total-row{display:flex;align-items:center;padding:8px 0;gap:8px;}
+.total-label{font-size:15px;font-weight:700;color:#3d2b1a;min-width:76px;}
+.total-display{flex:1;font-size:20px;font-weight:700;color:#c06020;text-align:right;}
+.sign-area{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px;}
+.sign-box{text-align:center;}
+.sign-label{font-size:11px;color:#a07858;margin-bottom:10px;}
+.sign-static{font-size:13px;font-weight:700;color:#3d2b1a;border-bottom:1px solid #d0c0b0;padding-bottom:6px;}
+.rf{background:#fdf3ea;padding:12px 24px;text-align:center;font-size:11px;color:#b08060;line-height:1.8;}
+.btn-area{display:flex;gap:10px;margin-top:16px;}
+.btn{flex:1;padding:13px;border-radius:12px;font-size:14px;font-weight:700;font-family:'Noto Sans TC',sans-serif;cursor:pointer;border:none;}
+.btn-preview{background:#f2e0cc;color:#a0622a;}
+.btn-clear{background:#f5f0eb;color:#a07858;}
+.preview-wrap{display:none;margin-top:20px;}
+.preview-card{background:#fff;border:1.5px solid #e8d8c8;border-radius:16px;overflow:hidden;}
+.preview-note{font-size:12px;color:#a07858;text-align:center;margin-top:10px;line-height:1.8;background:#fff8f2;border-radius:10px;padding:10px;}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="receipt">
+    <div class="rh">
+      <div class="rh-title">收　　據</div>
+      <div class="rh-sub">安安媽 · 跑腿／打掃／收納服務</div>
+    </div>
+    <div class="rb">
+      <div class="field-row">
+        <span class="field-label">收據編號</span>
+        <input class="field-input" id="f-no" placeholder="例：R2026-001" />
+      </div>
+      <div class="field-row">
+        <span class="field-label">日　　期</span>
+        <input class="field-input" id="f-date" type="date" />
+      </div>
+      <div class="field-row">
+        <span class="field-label">付款人</span>
+        <input class="field-input" id="f-client" placeholder="客戶姓名" />
+      </div>
+      <div class="field-row">
+        <span class="field-label">服務項目</span>
+        <select class="field-input" id="f-service">
+          <option value="">請選擇</option>
+          <option>跑腿服務</option>
+          <option>居家打掃</option>
+          <option>居家收納整理</option>
+          <option>跑腿服務 ＋ 居家打掃</option>
+          <option>跑腿服務 ＋ 居家收納整理</option>
+          <option>居家打掃 ＋ 居家收納整理</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <span class="field-label">服務說明</span>
+        <input class="field-input" id="f-desc" placeholder="例：打掃2小時、新營區跑腿" />
+      </div>
+      <div class="field-row">
+        <span class="field-label">服務地點</span>
+        <input class="field-input" id="f-addr" placeholder="例：台南市新營區___" />
+      </div>
+      <div class="field-row">
+        <span class="field-label">付款方式</span>
+        <select class="field-input" id="f-pay">
+          <option value="">請選擇</option>
+          <option>現金</option>
+          <option>銀行轉帳</option>
+          <option>郵局轉帳</option>
+          <option>Line Pay</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <span class="field-label">金　　額</span>
+        <input class="field-input" id="f-amount" type="number" placeholder="請輸入金額" />
+      </div>
+      <div class="divider"></div>
+      <div class="total-row">
+        <span class="total-label">實收金額</span>
+        <span class="total-display" id="total-display">NT$ —</span>
+      </div>
+      <div class="sign-area">
+        <div class="sign-box">
+          <div class="sign-label">立據人（收款方）</div>
+          <div class="sign-static">安安媽</div>
+        </div>
+        <div class="sign-box">
+          <div class="sign-label">付款人確認</div>
+          <div class="sign-static" style="color:#d0b898;">已付款</div>
+        </div>
+      </div>
+    </div>
+    <div class="rf">
+      服務時間：週一至週六 09:00–18:00　｜　週日固定休息<br>
+      有任何問題歡迎私訊 🤍
+    </div>
+  </div>
+
+  <div class="btn-area">
+    <button class="btn btn-preview" onclick="showPreview()">產生收據預覽 →</button>
+    <button class="btn btn-clear" onclick="clearAll()">清除重填</button>
+  </div>
+
+  <div class="preview-wrap" id="preview-wrap">
+    <div class="preview-card">
+      <div class="rh">
+        <div class="rh-title">收　　據</div>
+        <div class="rh-sub">安安媽 · 跑腿／打掃／收納服務</div>
+      </div>
+      <div class="rb" id="preview-body"></div>
+      <div class="rf">
+        服務時間：週一至週六 09:00–18:00　｜　週日固定休息<br>
+        有任何問題歡迎私訊 🤍
+      </div>
+    </div>
+    <div class="preview-note">
+      ☝️ 截圖上方收據後直接傳給客戶 Line<br>
+      自己也留一張截圖存檔對帳用 🌿
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('f-amount').addEventListener('input', function(){
+  var v = this.value;
+  document.getElementById('total-display').textContent = v ? 'NT$ ' + parseInt(v).toLocaleString() : 'NT$ —';
+});
+
+function showPreview(){
+  var no = document.getElementById('f-no').value || '—';
+  var date = document.getElementById('f-date').value;
+  var dateStr = date ? new Date(date+' 00:00').toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'}) : '—';
+  var client = document.getElementById('f-client').value || '—';
+  var service = document.getElementById('f-service').value || '—';
+  var desc = document.getElementById('f-desc').value || '—';
+  var addr = document.getElementById('f-addr').value || '—';
+  var pay = document.getElementById('f-pay').value || '—';
+  var amount = document.getElementById('f-amount').value;
+  var amountStr = amount ? 'NT$ ' + parseInt(amount).toLocaleString() : '—';
+
+  var rows = [
+    ['收據編號', no],
+    ['日　　期', dateStr],
+    ['付款人', client],
+    ['服務項目', service],
+    ['服務說明', desc],
+    ['服務地點', addr],
+    ['付款方式', pay],
+  ];
+
+  var html = rows.map(function(r){
+    return '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed #f0e0cc;font-size:13px;"><span style="color:#a07858;min-width:76px;">'+r[0]+'</span><span style="color:#3d2b1a;font-weight:500;text-align:right;max-width:60%;">'+r[1]+'</span></div>';
+  }).join('');
+
+  html += '<div style="border-top:1.5px solid #f0e0cc;margin:14px 0;"></div>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;"><span style="font-size:15px;font-weight:700;color:#3d2b1a;">實收金額</span><span style="font-size:20px;font-weight:700;color:#c06020;">'+amountStr+'</span></div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px;text-align:center;"><div><div style="font-size:11px;color:#a07858;margin-bottom:10px;">立據人（收款方）</div><div style="font-size:13px;font-weight:700;color:#3d2b1a;border-bottom:1px solid #d0c0b0;padding-bottom:6px;">安安媽</div></div><div><div style="font-size:11px;color:#a07858;margin-bottom:10px;">付款人確認</div><div style="font-size:13px;font-weight:700;color:#d0b898;border-bottom:1px solid #d0c0b0;padding-bottom:6px;">已付款</div></div></div>';
+
+  document.getElementById('preview-body').innerHTML = html;
+  document.getElementById('preview-wrap').style.display = 'block';
+  setTimeout(function(){
+    document.getElementById('preview-wrap').scrollIntoView({behavior:'smooth',block:'start'});
+  }, 100);
+}
+
+function clearAll(){
+  ['f-no','f-date','f-client','f-desc','f-addr','f-amount'].forEach(function(id){
+    document.getElementById(id).value='';
+  });
+  document.getElementById('f-service').selectedIndex=0;
+  document.getElementById('f-pay').selectedIndex=0;
+  document.getElementById('total-display').textContent='NT$ —';
+  document.getElementById('preview-wrap').style.display='none';
+}
+
+var today = new Date().toISOString().split('T')[0];
+document.getElementById('f-date').value = today;
+document.getElementById('f-no').value = 'R' + new Date().getFullYear() + '-001';
+</script>
+</body>
+</html>
